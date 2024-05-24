@@ -36,4 +36,4 @@ Para executar a aplicação, siga os seguintes passos:
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/seuusuario/tw-agenda-fx.git
+   git clone https://github.com/brunoaroucca/java-javafx-projeto-estudo.git
