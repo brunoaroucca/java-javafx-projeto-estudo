@@ -2,6 +2,7 @@ package br.com.brunoarouca.twagendafx;
 
 import br.com.brunoarouca.twagendafx.entidades.Contato;
 import br.com.brunoarouca.twagendafx.repositorios.ContatoRepositorio;
+import br.com.brunoarouca.twagendafx.repositorios.ContatoRepositorioJdbc;
 import br.com.brunoarouca.twagendafx.repositorios.interfaces.AgendaRepositorio;
 import com.almasb.fxgl.physics.box2d.dynamics.BodyType;
 import javafx.collections.FXCollections;
@@ -11,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -87,20 +89,29 @@ public class MainController implements Initializable {
         this.tabelaContatos.getSelectionModel().selectFirst();
     }
     public void botaoSalvar_Action(){
-        AgendaRepositorio<Contato> repositorioContato = new ContatoRepositorio();
-        Contato contato = new Contato();
-        contato.setNome(txfNome.getText());
-        contato.setIdade(Integer.parseInt(txfIdade.getText()));
-        contato.setTelefone(txfTelefone.getText());
+        try {
+            AgendaRepositorio<Contato> repositorioContato = new ContatoRepositorioJdbc();
+            Contato contato = new Contato();
+            contato.setNome(txfNome.getText());
+            contato.setIdade(Integer.parseInt(txfIdade.getText()));
+            contato.setTelefone(txfTelefone.getText());
 
-        if (this.ehInserir){
-            repositorioContato.inserir(contato);
-        } else {
-            repositorioContato.atualizar(contato);
+            if (this.ehInserir){
+                repositorioContato.inserir(contato);
+            } else {
+                repositorioContato.atualizar(contato);
+            }
+            habilitarEdicaoAgenda(false);
+            carregarTabelaContatos();
+            this.tabelaContatos.getSelectionModel().selectFirst();
+        } catch (Exception e){
+            Alert mensagem = new Alert(Alert.AlertType.ERROR);
+            mensagem.setTitle("Erro");
+            mensagem.setHeaderText("Erro no banco de dados");
+            mensagem.setContentText("houve um erro ao manipular o contato: " + e.getMessage());
+            mensagem.showAndWait();
         }
-        habilitarEdicaoAgenda(false);
-        carregarTabelaContatos();
-        this.tabelaContatos.getSelectionModel().selectFirst();
+
     }
     public void botaoExcluir_Action(){
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
@@ -119,17 +130,19 @@ public class MainController implements Initializable {
 
     }
     private void carregarTabelaContatos(){
-        AgendaRepositorio<Contato> repositorioContato = new ContatoRepositorio();
-        List<Contato> contatos = repositorioContato.selecionar();
-        if (contatos.isEmpty()){
-            Contato c1 = new Contato();
-            c1.setNome("Bruno Arouca");
-            c1.setIdade(25);
-            c1.setTelefone("(73) 9 9856-9414");
-            contatos.add(c1);
+        try {
+            AgendaRepositorio<Contato> repositorioContato = new ContatoRepositorioJdbc();
+            List<Contato> contatos = repositorioContato.selecionar();
+            ObservableList<Contato> contatoObservableList = FXCollections.observableArrayList(contatos);
+            this.tabelaContatos.getItems().setAll(contatoObservableList);
+        } catch (Exception e){
+            Alert mensagem = new Alert(Alert.AlertType.ERROR);
+            mensagem.setTitle("Erro");
+            mensagem.setHeaderText("Erro no banco de dados");
+            mensagem.setContentText("houve um erro ao obter a lista de contatos: " + e.getMessage());
+            mensagem.showAndWait();
         }
-        ObservableList<Contato> contatoObservableList = FXCollections.observableArrayList(contatos);
-        this.tabelaContatos.getItems().setAll(contatoObservableList);
+
     }
 
     private void habilitarEdicaoAgenda(Boolean edicaoEstaHabilitada){

@@ -2,6 +2,8 @@ module br.com.brunoarouca.twagendafx {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
+    requires java.sql;
+    requires mysql.connector.java;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -10,6 +12,7 @@ module br.com.brunoarouca.twagendafx {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+
 
     opens br.com.brunoarouca.twagendafx to javafx.fxml;
     exports br.com.brunoarouca.twagendafx;
